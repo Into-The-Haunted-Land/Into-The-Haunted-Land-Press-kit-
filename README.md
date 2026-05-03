@@ -4,16 +4,17 @@ Static press kit for GitHub Pages.
 
 Open `index.html` locally or publish this repository with GitHub Pages from the repository root.
 
-Editable page text lives in:
+Editable page text lives in language folders. Current Traditional Chinese content lives in `content/zh-TW/`:
 
-- `content/developer.md`
-- `content/pitch.md`
-- `content/upper-title.md`
-- `content/upper-text.md`
-- `content/mid-title.md`
-- `content/mid-text.md`
-- `content/youtube-url.md`
-- `content/factsheet.json`
+- `content/zh-TW/pitch.md`
+- `content/zh-TW/upper-title.md`
+- `content/zh-TW/upper-text.md`
+- `content/zh-TW/mid-title.md`
+- `content/zh-TW/mid-text.md`
+- `content/zh-TW/youtube-url.md`
+- `content/zh-TW/factsheet.json`
+
+To add another language, create a folder such as `content/en/` or `content/ja/` with the same file names. Missing files fall back to `content/zh-TW/`.
 
 The page supports basic Markdown: headings, paragraphs, `**bold**`, `*italic*`, links, inline code, and bullet lists.
 

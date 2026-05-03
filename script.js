@@ -201,12 +201,68 @@ document.querySelectorAll('.asset-scroll').forEach((scrollView) => {
 });
 
 const textFiles = {
-  pitch: 'content/pitch.md',
-  upperTitle: 'content/upper-title.md',
-  upperText: 'content/upper-text.md',
-  midTitle: 'content/mid-title.md',
-  midText: 'content/mid-text.md',
+  pitch: 'pitch.md',
+  upperTitle: 'upper-title.md',
+  upperText: 'upper-text.md',
+  midTitle: 'mid-title.md',
+  midText: 'mid-text.md',
 };
+
+const defaultLanguage = 'zh-TW';
+const supportedLanguages = ['zh-TW', 'en', 'ja'];
+const initialUrlLanguage = getUrlLanguage();
+let currentLanguage = supportedLanguages.includes(initialUrlLanguage)
+  ? initialUrlLanguage
+  : localStorage.getItem('press-kit-language') || defaultLanguage;
+
+if (!supportedLanguages.includes(currentLanguage)) {
+  currentLanguage = defaultLanguage;
+}
+
+function contentPath(fileName, language = currentLanguage) {
+  return `content/${language}/${fileName}`;
+}
+
+function fetchLanguageFile(fileName, language = currentLanguage) {
+  return fetch(contentPath(fileName, language), { cache: 'no-store' })
+    .then((response) => {
+      if (response.ok) {
+        return response.text();
+      }
+
+      if (language !== defaultLanguage) {
+        return fetch(contentPath(fileName, defaultLanguage), { cache: 'no-store' }).then((fallbackResponse) => {
+          if (!fallbackResponse.ok) {
+            throw new Error(`Unable to load ${fileName}`);
+          }
+          return fallbackResponse.text();
+        });
+      }
+
+      throw new Error(`Unable to load ${fileName}`);
+    });
+}
+
+function fetchLanguageJson(fileName, language = currentLanguage) {
+  return fetchLanguageFile(fileName, language).then((text) => JSON.parse(text));
+}
+
+function getUrlLanguage() {
+  const language = new URLSearchParams(window.location.search).get('lang');
+  return supportedLanguages.includes(language) ? language : null;
+}
+
+function updateLanguageControl() {
+  document.querySelectorAll('[data-language-select]').forEach((select) => {
+    select.value = currentLanguage;
+  });
+}
+
+function updateLanguageUrl(language) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('lang', language);
+  window.history.replaceState({}, '', url);
+}
 
 function renderFactsheet(data) {
   document.querySelectorAll('[data-factsheet]').forEach((list) => {
@@ -226,21 +282,17 @@ function renderFactsheet(data) {
   });
 }
 
-fetch('content/factsheet.json', { cache: 'no-store' })
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error('Unable to load content/factsheet.json');
-    }
-    return response.json();
-  })
-  .then((data) => {
-    if (data && typeof data === 'object' && !Array.isArray(data)) {
-      renderFactsheet(data);
-    }
-  })
-  .catch(() => {
-    // Leave the factsheet empty if the JSON cannot be loaded.
-  });
+function loadFactsheetContent(language = currentLanguage) {
+  fetchLanguageJson('factsheet.json', language)
+    .then((data) => {
+      if (data && typeof data === 'object' && !Array.isArray(data)) {
+        renderFactsheet(data);
+      }
+    })
+    .catch(() => {
+      // Leave the factsheet empty if the JSON cannot be loaded.
+    });
+}
 
 function getYouTubeEmbedUrl(value) {
   const input = value.trim();
@@ -271,26 +323,22 @@ function getYouTubeEmbedUrl(value) {
   }
 }
 
-fetch('content/youtube-url.md', { cache: 'no-store' })
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error('Unable to load content/youtube-url.md');
-    }
-    return response.text();
-  })
-  .then((text) => {
-    const embedUrl = getYouTubeEmbedUrl(text);
-    if (!embedUrl) {
-      return;
-    }
+function loadYouTubeContent(language = currentLanguage) {
+  fetchLanguageFile('youtube-url.md', language)
+    .then((text) => {
+      const embedUrl = getYouTubeEmbedUrl(text);
+      if (!embedUrl) {
+        return;
+      }
 
-    document.querySelectorAll('[data-youtube-player]').forEach((iframe) => {
-      iframe.src = embedUrl;
+      document.querySelectorAll('[data-youtube-player]').forEach((iframe) => {
+        iframe.src = embedUrl;
+      });
+    })
+    .catch(() => {
+      // Keep the HTML fallback YouTube embed.
     });
-  })
-  .catch(() => {
-    // Keep the HTML fallback YouTube embed.
-  });
+}
 
 function escapeHtml(value) {
   return value
@@ -422,20 +470,41 @@ function renderText(target, text) {
   target.textContent = content;
 }
 
-Object.entries(textFiles).forEach(([key, path]) => {
-  fetch(path, { cache: 'no-store' })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Unable to load ${path}`);
-      }
-      return response.text();
-    })
-    .then((text) => {
-      document.querySelectorAll(`[data-text-key="${key}"]`).forEach((target) => {
-        renderText(target, text);
+function loadMarkdownContent(language = currentLanguage) {
+  Object.entries(textFiles).forEach(([key, fileName]) => {
+    fetchLanguageFile(fileName, language)
+      .then((text) => {
+        document.querySelectorAll(`[data-text-key="${key}"]`).forEach((target) => {
+          renderText(target, text);
+        });
+      })
+      .catch(() => {
+        // Keep the HTML fallback text when the Markdown cannot be loaded.
       });
-    })
-    .catch(() => {
-      // Keep the HTML fallback text when the page is opened directly from disk.
-    });
+  });
+}
+
+function loadLanguage(language, options = {}) {
+  if (!supportedLanguages.includes(language)) {
+    language = defaultLanguage;
+  }
+
+  currentLanguage = language;
+  localStorage.setItem('press-kit-language', currentLanguage);
+  if (options.updateUrl !== false) {
+    updateLanguageUrl(currentLanguage);
+  }
+  document.documentElement.lang = currentLanguage;
+  updateLanguageControl();
+  loadMarkdownContent(currentLanguage);
+  loadFactsheetContent(currentLanguage);
+  loadYouTubeContent(currentLanguage);
+}
+
+document.querySelectorAll('[data-language-select]').forEach((select) => {
+  select.addEventListener('change', () => {
+    loadLanguage(select.value);
+  });
 });
+
+loadLanguage(currentLanguage, { updateUrl: false });
