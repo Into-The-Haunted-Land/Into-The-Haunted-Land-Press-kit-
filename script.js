@@ -3,6 +3,10 @@ function prepareExternalAssetLinks(root = document) {
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noreferrer');
   });
+
+  root.querySelectorAll('.asset-card img').forEach((image) => {
+    image.draggable = false;
+  });
 }
 
 prepareExternalAssetLinks();
@@ -36,6 +40,11 @@ function createAssetCard(src, title) {
 }
 
 function getGitHubApiUrl(container, folderPath) {
+  const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  if (isLocalPreview) {
+    return null;
+  }
+
   const configuredOwner = container.dataset.githubOwner;
   const configuredRepo = container.dataset.githubRepo;
   if (configuredOwner && configuredRepo) {
@@ -57,11 +66,57 @@ function getGitHubApiUrl(container, folderPath) {
   return `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}`;
 }
 
+function getLocalDirectoryUrl(folderPath) {
+  const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  if (!isLocalPreview) {
+    return null;
+  }
+
+  return `${folderPath.replace(/\/?$/, '/')}`;
+}
+
+function parseLocalDirectoryListing(html, folderPath) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return Array.from(doc.querySelectorAll('a'))
+    .map((link) => decodeURIComponent(link.getAttribute('href') || ''))
+    .filter((href) => href && href !== '../')
+    .map((href) => href.replace(/^.*\//, ''))
+    .map((name) => ({
+      name,
+      path: `${folderPath.replace(/\/?$/, '/')}${encodeURIComponent(name)}`,
+      type: 'file',
+    }));
+}
+
+function fetchFolderFiles(container, folderPath) {
+  const localDirectoryUrl = getLocalDirectoryUrl(folderPath);
+  if (localDirectoryUrl) {
+    return fetch(localDirectoryUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Unable to load ${localDirectoryUrl}`);
+        }
+        return response.text();
+      })
+      .then((html) => parseLocalDirectoryListing(html, folderPath));
+  }
+
+  const apiUrl = getGitHubApiUrl(container, folderPath);
+  if (!apiUrl) {
+    return Promise.reject(new Error(`Unable to resolve folder source for ${folderPath}`));
+  }
+
+  return fetch(apiUrl)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Unable to load ${apiUrl}`);
+      }
+      return response.json();
+    });
+}
+
 function renderAssetCards(container, files) {
-  const imageFiles = files
-    .filter((file) => file.type === 'file')
-    .filter((file) => /\.(png|jpe?g|webp|gif|svg)$/i.test(file.name))
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  const imageFiles = getImageFiles(files);
 
   if (imageFiles.length === 0) {
     return;
@@ -74,20 +129,43 @@ function renderAssetCards(container, files) {
   });
 }
 
-document.querySelectorAll('[data-asset-folder]').forEach((container) => {
-  const folderPath = container.dataset.assetFolder;
-  const apiUrl = getGitHubApiUrl(container, folderPath);
-  if (!apiUrl) {
+function getImageFiles(files) {
+  return files
+    .filter((file) => file.type === 'file')
+    .filter((file) => /\.(png|jpe?g|webp|gif|svg)$/i.test(file.name))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+}
+
+function renderGalleryImages(container, files) {
+  const imageFiles = getImageFiles(files);
+
+  if (imageFiles.length === 0) {
     return;
   }
 
-  fetch(apiUrl)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Unable to load ${apiUrl}`);
-      }
-      return response.json();
-    })
+  container.replaceChildren();
+  imageFiles.forEach((file, index) => {
+    const src = file.download_url || encodeURI(file.path);
+    const title = titleFromFileName(file.name) || `Screenshot ${index + 1}`;
+    const link = document.createElement('a');
+    link.href = src;
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noreferrer');
+
+    const image = document.createElement('img');
+    image.src = src;
+    image.alt = title;
+    image.loading = 'lazy';
+
+    link.appendChild(image);
+    container.appendChild(link);
+  });
+}
+
+document.querySelectorAll('[data-asset-folder]').forEach((container) => {
+  const folderPath = container.dataset.assetFolder;
+
+  fetchFolderFiles(container, folderPath)
     .then((files) => {
       if (Array.isArray(files)) {
         renderAssetCards(container, files);
@@ -98,8 +176,22 @@ document.querySelectorAll('[data-asset-folder]').forEach((container) => {
     });
 });
 
+document.querySelectorAll('[data-gallery-folder]').forEach((container) => {
+  const folderPath = container.dataset.galleryFolder;
+
+  fetchFolderFiles(container, folderPath)
+    .then((files) => {
+      if (Array.isArray(files)) {
+        renderGalleryImages(container, files);
+      }
+    })
+    .catch(() => {
+      // No screenshots are shown if the directory API is unavailable.
+    });
+});
+
 document.querySelectorAll('.asset-scroll').forEach((scrollView) => {
-  let isDown = false;
+  let activePointerId = null;
   let hasDragged = false;
   let startX = 0;
   let startScrollLeft = 0;
@@ -109,19 +201,20 @@ document.querySelectorAll('.asset-scroll').forEach((scrollView) => {
       return;
     }
 
-    isDown = true;
+    activePointerId = event.pointerId;
     hasDragged = false;
     scrollView.classList.add('dragging');
     startX = event.pageX;
     startScrollLeft = scrollView.scrollLeft;
+    scrollView.setPointerCapture(event.pointerId);
 
     if (event.pointerType !== 'touch') {
       event.preventDefault();
     }
   });
 
-  document.addEventListener('pointermove', (event) => {
-    if (!isDown) {
+  scrollView.addEventListener('pointermove', (event) => {
+    if (activePointerId !== event.pointerId) {
       return;
     }
 
@@ -130,17 +223,20 @@ document.querySelectorAll('.asset-scroll').forEach((scrollView) => {
     if (Math.abs(delta) > 4) {
       hasDragged = true;
     }
-    scrollView.scrollLeft = startScrollLeft - delta;
+    scrollView.scrollLeft = startScrollLeft + delta;
   });
 
   ['pointerup', 'pointercancel'].forEach((eventName) => {
-    document.addEventListener(eventName, () => {
-      if (!isDown) {
+    scrollView.addEventListener(eventName, (event) => {
+      if (activePointerId !== event.pointerId) {
         return;
       }
 
-      isDown = false;
+      activePointerId = null;
       scrollView.classList.remove('dragging');
+      if (scrollView.hasPointerCapture(event.pointerId)) {
+        scrollView.releasePointerCapture(event.pointerId);
+      }
     });
   });
 
@@ -170,6 +266,56 @@ const textFiles = {
   midTitle: 'content/mid-title.md',
   midText: 'content/mid-text.md',
 };
+
+function getYouTubeEmbedUrl(value) {
+  const input = value.trim();
+  if (!input) {
+    return null;
+  }
+
+  try {
+    const url = new URL(input);
+    let videoId = '';
+
+    if (url.hostname.includes('youtu.be')) {
+      videoId = url.pathname.replace('/', '');
+    } else if (url.hostname.includes('youtube.com')) {
+      if (url.pathname.startsWith('/embed/')) {
+        videoId = url.pathname.split('/embed/')[1];
+      } else if (url.pathname.startsWith('/shorts/')) {
+        videoId = url.pathname.split('/shorts/')[1];
+      } else {
+        videoId = url.searchParams.get('v') || '';
+      }
+    }
+
+    videoId = videoId.split(/[?&/]/)[0];
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+  } catch {
+    return null;
+  }
+}
+
+fetch('content/youtube-url.md')
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error('Unable to load content/youtube-url.md');
+    }
+    return response.text();
+  })
+  .then((text) => {
+    const embedUrl = getYouTubeEmbedUrl(text);
+    if (!embedUrl) {
+      return;
+    }
+
+    document.querySelectorAll('[data-youtube-player]').forEach((iframe) => {
+      iframe.src = embedUrl;
+    });
+  })
+  .catch(() => {
+    // Keep the HTML fallback YouTube embed.
+  });
 
 function escapeHtml(value) {
   return value

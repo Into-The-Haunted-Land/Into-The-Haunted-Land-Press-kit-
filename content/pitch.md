@@ -1,1 +1,1 @@
-Online co-op survival horror Game.
+Multiplayer Online co-op Horror Extraction Game
