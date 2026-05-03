@@ -151,6 +151,7 @@ nav a:hover { color: var(--ink); }
   position: sticky;
   top: 88px;
   align-self: start;
+  transform: translateX(clamp(-24px, -1.4vw, -10px));
   border-top: 4px solid var(--red);
   background: var(--panel);
   padding: clamp(18px, 1.6vw, 26px);
@@ -163,6 +164,11 @@ nav a:hover { color: var(--ink); }
   margin-bottom: 20px;
 }
 .factsheet {
+  position: sticky;
+  top: 88px;
+  align-self: start;
+  transform: translateX(clamp(10px, 1.4vw, 24px));
+  border-top: 4px solid var(--red);
   background: var(--panel);
   padding: clamp(16px, 1.2vw, 22px);
   box-shadow: 0 14px 42px var(--shadow);
@@ -400,8 +406,13 @@ footer {
   .intro-grid, .split { grid-template-columns: 1fr; }
   .press-card {
     position: static;
+    transform: none;
     max-height: none;
     overflow: visible;
+  }
+  .factsheet {
+    position: static;
+    transform: none;
   }
   .gallery { grid-template-columns: repeat(2, 1fr); }
   .asset-scroll .asset-card { flex-basis: min(78vw, 360px); }
