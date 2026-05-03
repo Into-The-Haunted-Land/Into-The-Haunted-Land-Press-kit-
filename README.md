@@ -8,8 +8,10 @@ Editable page text lives in:
 
 - `content/developer.md`
 - `content/pitch.md`
-- `content/description.md`
-- `content/main-text.md`
+- `content/upper-title.md`
+- `content/upper-text.md`
+- `content/mid-title.md`
+- `content/mid-text.md`
 
 The page supports basic Markdown: headings, paragraphs, `**bold**`, `*italic*`, links, inline code, and bullet lists.
 

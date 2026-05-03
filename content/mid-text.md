@@ -1,4 +1,3 @@
-
 Into The Haunted Land is a 1–6 player online co-op horror extraction game about greed, teamwork, and cursed treasure.
 
 A mysterious ritual has turned an entire island into the Haunted Land. Under the orders of a powerful Guild, players are sent into its abandoned ruins to recover valuable artifacts and meet strict quotas before time runs out. Each expedition is a dangerous balance between profit and survival: go deeper for better loot, or retreat before the island turns against you.

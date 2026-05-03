@@ -165,8 +165,10 @@ document.querySelectorAll('.asset-scroll').forEach((scrollView) => {
 const textFiles = {
   developer: 'content/developer.md',
   pitch: 'content/pitch.md',
-  description: 'content/description.md',
-  mainText: 'content/main-text.md',
+  upperTitle: 'content/upper-title.md',
+  upperText: 'content/upper-text.md',
+  midTitle: 'content/mid-title.md',
+  midText: 'content/mid-text.md',
 };
 
 function escapeHtml(value) {

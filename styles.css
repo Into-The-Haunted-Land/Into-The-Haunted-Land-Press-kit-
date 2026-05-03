@@ -144,11 +144,35 @@ h1 { font-size: clamp(2.3rem, 4.8vw, 4.8rem); max-width: 820px; }
 h2 { font-size: clamp(2rem, 4vw, 3.7rem); }
 p { color: var(--muted); font-size: 1rem; }
 .description p:not(.eyebrow) { max-width: 720px; font-size: 1.1rem; }
+.text-block + .text-block {
+  margin-top: 34px;
+}
+.text-divider {
+  position: relative;
+  height: 1px;
+  margin: clamp(34px, 4vw, 54px) 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.92), transparent);
+}
+.text-divider::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: var(--bg);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
 .description h1,
 .description h2,
 .description h3 {
   margin-top: 28px;
   font-size: clamp(1.45rem, 2.2vw, 2.2rem);
+}
+.text-block-mid h2 {
+  max-width: 760px;
+  font-size: clamp(2rem, 3.6vw, 3.8rem);
 }
 .description ul {
   margin: 18px 0 0;
