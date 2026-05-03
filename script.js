@@ -99,45 +99,58 @@ document.querySelectorAll('[data-asset-folder]').forEach((container) => {
 });
 
 document.querySelectorAll('.asset-scroll').forEach((scrollView) => {
-  let dragging = false;
-  let didDrag = false;
+  let isDown = false;
+  let hasDragged = false;
   let startX = 0;
   let startScrollLeft = 0;
 
   scrollView.addEventListener('pointerdown', (event) => {
-    dragging = true;
-    didDrag = false;
-    scrollView.classList.add('dragging');
-    scrollView.setPointerCapture(event.pointerId);
-    startX = event.clientX;
-    startScrollLeft = scrollView.scrollLeft;
-  });
-
-  scrollView.addEventListener('pointermove', (event) => {
-    if (!dragging) {
+    if (event.button !== undefined && event.button !== 0) {
       return;
     }
+
+    isDown = true;
+    hasDragged = false;
+    scrollView.classList.add('dragging');
+    startX = event.pageX;
+    startScrollLeft = scrollView.scrollLeft;
+
+    if (event.pointerType !== 'touch') {
+      event.preventDefault();
+    }
+  });
+
+  document.addEventListener('pointermove', (event) => {
+    if (!isDown) {
+      return;
+    }
+
     event.preventDefault();
-    const delta = event.clientX - startX;
+    const delta = event.pageX - startX;
     if (Math.abs(delta) > 4) {
-      didDrag = true;
+      hasDragged = true;
     }
     scrollView.scrollLeft = startScrollLeft - delta;
   });
 
-  ['pointerup', 'pointercancel', 'pointerleave'].forEach((eventName) => {
-    scrollView.addEventListener(eventName, () => {
-      dragging = false;
+  ['pointerup', 'pointercancel'].forEach((eventName) => {
+    document.addEventListener(eventName, () => {
+      if (!isDown) {
+        return;
+      }
+
+      isDown = false;
       scrollView.classList.remove('dragging');
     });
   });
 
   scrollView.addEventListener('click', (event) => {
-    if (!didDrag) {
+    if (!hasDragged) {
       return;
     }
     event.preventDefault();
-    didDrag = false;
+    event.stopPropagation();
+    hasDragged = false;
   }, true);
 
   scrollView.addEventListener('wheel', (event) => {
@@ -150,11 +163,106 @@ document.querySelectorAll('.asset-scroll').forEach((scrollView) => {
 });
 
 const textFiles = {
-  developer: 'content/developer.txt',
-  pitch: 'content/pitch.txt',
-  description: 'content/description.txt',
-  mainText: 'content/main-text.txt',
+  developer: 'content/developer.md',
+  pitch: 'content/pitch.md',
+  description: 'content/description.md',
+  mainText: 'content/main-text.md',
 };
+
+function escapeHtml(value) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function isSafeUrl(url) {
+  return /^(https?:|mailto:|#|\/|\.\/|\.\.\/)/i.test(url);
+}
+
+function renderInlineMarkdown(value) {
+  let html = escapeHtml(value);
+
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
+    const trimmedUrl = url.trim();
+    if (!isSafeUrl(trimmedUrl)) {
+      return label;
+    }
+
+    const target = /^https?:/i.test(trimmedUrl) ? ' target="_blank" rel="noreferrer"' : '';
+    return `<a href="${escapeHtml(trimmedUrl)}"${target}>${label}</a>`;
+  });
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  return html;
+}
+
+function stripHeadingMarker(value) {
+  return value.replace(/^#{1,6}\s+/, '');
+}
+
+function renderMarkdown(value) {
+  const lines = value.replace(/\r\n/g, '\n').split('\n');
+  const blocks = [];
+  let paragraph = [];
+  let list = [];
+
+  function flushParagraph() {
+    if (paragraph.length === 0) {
+      return;
+    }
+
+    blocks.push(`<p>${renderInlineMarkdown(paragraph.join(' '))}</p>`);
+    paragraph = [];
+  }
+
+  function flushList() {
+    if (list.length === 0) {
+      return;
+    }
+
+    blocks.push(`<ul>${list.map((item) => `<li>${renderInlineMarkdown(item)}</li>`).join('')}</ul>`);
+    list = [];
+  }
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      flushParagraph();
+      flushList();
+      return;
+    }
+
+    const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+    if (heading) {
+      flushParagraph();
+      flushList();
+      const level = heading[1].length;
+      blocks.push(`<h${level}>${renderInlineMarkdown(heading[2])}</h${level}>`);
+      return;
+    }
+
+    const listItem = trimmed.match(/^[-*]\s+(.+)$/);
+    if (listItem) {
+      flushParagraph();
+      list.push(listItem[1]);
+      return;
+    }
+
+    flushList();
+    paragraph.push(trimmed);
+  });
+
+  flushParagraph();
+  flushList();
+
+  return blocks.join('');
+}
 
 function renderText(target, text) {
   const content = text.trim();
@@ -162,17 +270,13 @@ function renderText(target, text) {
     return;
   }
 
-  if (target.dataset.textFormat === 'paragraphs') {
-    target.replaceChildren();
-    content
-      .split(/\r?\n\s*\r?\n/)
-      .map((paragraph) => paragraph.trim())
-      .filter(Boolean)
-      .forEach((paragraph) => {
-        const element = document.createElement('p');
-        element.textContent = paragraph;
-        target.appendChild(element);
-      });
+  if (target.dataset.textFormat === 'markdown') {
+    target.innerHTML = renderMarkdown(content);
+    return;
+  }
+
+  if (target.dataset.textFormat === 'inline-markdown') {
+    target.innerHTML = renderInlineMarkdown(stripHeadingMarker(content));
     return;
   }
 

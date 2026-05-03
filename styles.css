@@ -144,6 +144,31 @@ h1 { font-size: clamp(2.3rem, 4.8vw, 4.8rem); max-width: 820px; }
 h2 { font-size: clamp(2rem, 4vw, 3.7rem); }
 p { color: var(--muted); font-size: 1rem; }
 .description p:not(.eyebrow) { max-width: 720px; font-size: 1.1rem; }
+.description h1,
+.description h2,
+.description h3 {
+  margin-top: 28px;
+  font-size: clamp(1.45rem, 2.2vw, 2.2rem);
+}
+.description ul {
+  margin: 18px 0 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+}
+.description li {
+  margin: 8px 0;
+}
+.description strong,
+.tagline strong,
+dd strong {
+  color: var(--ink);
+  font-weight: 900;
+}
+.description a {
+  color: var(--ink);
+  text-decoration-color: var(--red);
+  text-underline-offset: 4px;
+}
 .eyebrow {
   margin: 0 0 14px;
   color: var(--red);
@@ -206,10 +231,15 @@ dd { margin: 4px 0 0; font-weight: 700; }
   scrollbar-color: var(--red) rgba(255, 255, 255, 0.08);
   cursor: grab;
   user-select: none;
+  touch-action: pan-y;
+  overscroll-behavior-x: contain;
 }
 .asset-scroll.dragging {
   cursor: grabbing;
   scroll-snap-type: none;
+}
+.asset-scroll.dragging .asset-card {
+  pointer-events: none;
 }
 .asset-scroll::-webkit-scrollbar {
   height: 10px;
