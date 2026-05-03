@@ -1,36 +1,30 @@
-Into The Haunted Land is a 1–6 player online co-op horror extraction game about greed, teamwork, and cursed treasure.
+ 由 Bionic Bay 開發者之一 Kevin Lai 開發，這次玩家將組隊深入這個被詛咒的島嶼，尋找危險且價值連城的詛咒物品。
 
-A mysterious ritual has turned an entire island into the Haunted Land. Under the orders of a powerful Guild, players are sent into its abandoned ruins to recover valuable artifacts and meet strict quotas before time runs out. Each expedition is a dangerous balance between profit and survival: go deeper for better loot, or retreat before the island turns against you.
+## 遊戲核心 
 
-Players must explore cursed locations together, search for valuable and dangerous items, avoid monsters, and use environmental hiding spots to survive. Some treasures are cursed and cannot be removed easily. They may slow you down, drain your stamina, distort your senses, or trigger deadly events that affect the whole team.
+### 探索！尋寶！躲藏！撤離！
 
-The more you bring back, the more money you earn to purchase tools and prepare for future expeditions. But as the Guild’s demands rise, so does the danger. Coordination becomes everything: who scouts ahead, who carries the loot, who takes the cursed item, and when the team decides to escape.
+詭域深行是一款1-6人的多人恐怖遊戲，玩家將到各個遺跡內尋找寶物並撤離。然而，遺跡中充滿了怪物與神秘現象，玩家需要適時逃跑或躲藏來化解危機！
 
-Built with an isometric perspective, Into The Haunted Land offers a different kind of co-op horror experience — one where players can see their teammates, read the environment, and experience horror through shared tension, bad decisions, and the consequences of greed.
+此外，遺跡中的詛咒物品充滿了詛咒，拿取它的玩家可能會遭遇像是變小、無法講話、變成蜘蛛或突然離不開房屋...等危險又令人捧腹大笑的效果。而貪婪的公會則要求團隊在時間內上繳一定價值的物品以繼續遊戲；在壓力的驅動下，玩家將被迫進行一次又一次殘酷的冒險。
 
-Loot. Hide. Escape. Get cursed.
+### 詛咒的物品、怪物與躲藏
+##### 詛咒的物品
+詛咒物品有許多不同效果，讓玩家每次進入遺跡時都會面臨難以預測的狀況。他可能是完成配額的關鍵，但也可能讓一次順利的探險瞬間變成災難。每件物品都會成為團隊必須共同決定的問題：該由誰拿取、有多危險，以及什麼時候該撤退？
 
-Key Features
-1–6 Player Online Co-op Horror
+除此之外，每個遺跡中有一個特殊的「預兆物品」，當玩家拿取時整個遊戲將會變得非常困難與恐怖，但收集「預兆物品」是通關遊戲主線的唯一方法。
 
-Play alone or team up with friends to explore haunted ruins, recover treasure, and escape together. Every expedition becomes more chaotic when the whole team has to decide what to carry, where to hide, and when to run.
+##### 怪物
+而怪物也都有各自的行為、個性與攻擊模式。有些怪物在被激怒前可能會完全無視玩家；有些則可能從黑暗中跟蹤團隊、詛咒不幸的小雖咖、懲罰吵鬧的人，或在見到玩家時直接發動攻擊。學習每種怪物的行為是生存的一部分，但在合作遊戲的混亂中，一名隊友的失誤很快就可能變成所有人的麻煩。
 
-Cursed Items with Real Consequences
+##### 躲藏點
+遊戲中有許多躲藏點，例如床底下、櫃子中甚至窗簾後面！每個躲藏點的效過好壞不同，玩家可以在被發現前躲好，或者在被追殺時躲起來並乞求他沒看到你。
+此外要注意怪物和身上物品都會影響玩家會不會被發現，可能對講機不小心響了起來，或粗心的朋友把你躲藏點揭開...這些都是遊戲的趣味之一
 
-Treasure is valuable, but some items are cursed. They may slow your movement, drain stamina, distort your perception, or trigger dangerous events. Taking one might help you meet the quota — or doom the entire team.
+### 時間、事件與特殊狀態
+遊戲中遺跡將根據時間有所變動。玩家一開始抵達時是白天，而將會隨著遊玩漸漸變黑，而怪物也將漸漸聚集起來...記得必須要在12點前離開這裡，不然將會被司機與夥伴無情拋下。
+除此之外遊戲也有許多突發狀況，從小如東西落下到大如鬼打牆、和夥伴分開等各式各樣的恐怖事件；尤其當玩家拿到「預兆物品」後，將會有非常特殊的事件與機制出現。
+遺跡的特殊狀態也是遊戲中特別的機制，每一天開始遺跡將會是不同狀態，可能是下雨天，也可能是伸手不見五指的濃霧，遊戲將根據天氣有許多不同變化。
 
-Quota-Based Extraction Gameplay
-
-The Guild demands results. Recover enough valuable items within a limited number of days, sell your loot, and survive long enough to meet the next quota.
-
-Hide, Run, and Survive
-
-Use environmental hiding spots to avoid monsters and survive supernatural events. Sometimes fighting is not an option — staying quiet and knowing when to move is the only way out.
-
-Teamwork Under Pressure
-
-Scouting, carrying loot, managing cursed items, and deciding when to retreat are all team decisions. One greedy choice can turn a successful run into a disaster.
-
-A Top-Down Horror Experience
-
-Unlike many first-person co-op horror games, Into The Haunted Land uses an isometric/top-down view, making it easier to see teammates, read the situation, and enjoy horror without relying only on first-person jump scares.
+### 視角與美術風格
+不同於許多第一人稱合作恐怖遊戲，詭域深行採用了俯視角，讓玩家能看見更多環境、隊友，以及周遭的危險。這個視角創造出了一種不同類型的恐怖：不是單純依靠突然的驚嚇，而是看著情況隨著怪物接近、隊友陷入恐慌、詛咒效果逐漸失控而慢慢崩壞。此外這款遊戲也非常適合對3D遊戲產生暈眩感的玩家（3D暈!），讓那些原本只能難過地看著朋友玩第一人稱恐怖遊戲的人，也能一起加入遊玩。

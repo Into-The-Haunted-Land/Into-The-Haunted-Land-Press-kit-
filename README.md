@@ -13,6 +13,7 @@ Editable page text lives in:
 - `content/mid-title.md`
 - `content/mid-text.md`
 - `content/youtube-url.md`
+- `content/factsheet.json`
 
 The page supports basic Markdown: headings, paragraphs, `**bold**`, `*italic*`, links, inline code, and bullet lists.
 

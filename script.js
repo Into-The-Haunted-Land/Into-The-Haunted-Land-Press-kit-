@@ -91,7 +91,7 @@ function parseLocalDirectoryListing(html, folderPath) {
 function fetchFolderFiles(container, folderPath) {
   const localDirectoryUrl = getLocalDirectoryUrl(folderPath);
   if (localDirectoryUrl) {
-    return fetch(localDirectoryUrl)
+    return fetch(localDirectoryUrl, { cache: 'no-store' })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Unable to load ${localDirectoryUrl}`);
@@ -106,7 +106,7 @@ function fetchFolderFiles(container, folderPath) {
     return Promise.reject(new Error(`Unable to resolve folder source for ${folderPath}`));
   }
 
-  return fetch(apiUrl)
+  return fetch(apiUrl, { cache: 'no-store' })
     .then((response) => {
       if (!response.ok) {
         throw new Error(`Unable to load ${apiUrl}`);
@@ -124,7 +124,7 @@ function renderAssetCards(container, files) {
 
   container.replaceChildren();
   imageFiles.forEach((file) => {
-    const src = file.download_url || encodeURI(file.path);
+    const src = file.download_url || file.path;
     container.appendChild(createAssetCard(src, titleFromFileName(file.name)));
   });
 }
@@ -145,7 +145,7 @@ function renderGalleryImages(container, files) {
 
   container.replaceChildren();
   imageFiles.forEach((file, index) => {
-    const src = file.download_url || encodeURI(file.path);
+    const src = file.download_url || file.path;
     const title = titleFromFileName(file.name) || `Screenshot ${index + 1}`;
     const link = document.createElement('a');
     link.href = src;
@@ -191,64 +191,6 @@ document.querySelectorAll('[data-gallery-folder]').forEach((container) => {
 });
 
 document.querySelectorAll('.asset-scroll').forEach((scrollView) => {
-  let activePointerId = null;
-  let hasDragged = false;
-  let startX = 0;
-  let startScrollLeft = 0;
-
-  scrollView.addEventListener('pointerdown', (event) => {
-    if (event.button !== undefined && event.button !== 0) {
-      return;
-    }
-
-    activePointerId = event.pointerId;
-    hasDragged = false;
-    scrollView.classList.add('dragging');
-    startX = event.pageX;
-    startScrollLeft = scrollView.scrollLeft;
-    scrollView.setPointerCapture(event.pointerId);
-
-    if (event.pointerType !== 'touch') {
-      event.preventDefault();
-    }
-  });
-
-  scrollView.addEventListener('pointermove', (event) => {
-    if (activePointerId !== event.pointerId) {
-      return;
-    }
-
-    event.preventDefault();
-    const delta = event.pageX - startX;
-    if (Math.abs(delta) > 4) {
-      hasDragged = true;
-    }
-    scrollView.scrollLeft = startScrollLeft + delta;
-  });
-
-  ['pointerup', 'pointercancel'].forEach((eventName) => {
-    scrollView.addEventListener(eventName, (event) => {
-      if (activePointerId !== event.pointerId) {
-        return;
-      }
-
-      activePointerId = null;
-      scrollView.classList.remove('dragging');
-      if (scrollView.hasPointerCapture(event.pointerId)) {
-        scrollView.releasePointerCapture(event.pointerId);
-      }
-    });
-  });
-
-  scrollView.addEventListener('click', (event) => {
-    if (!hasDragged) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    hasDragged = false;
-  }, true);
-
   scrollView.addEventListener('wheel', (event) => {
     if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
       return;
@@ -259,13 +201,46 @@ document.querySelectorAll('.asset-scroll').forEach((scrollView) => {
 });
 
 const textFiles = {
-  developer: 'content/developer.md',
   pitch: 'content/pitch.md',
   upperTitle: 'content/upper-title.md',
   upperText: 'content/upper-text.md',
   midTitle: 'content/mid-title.md',
   midText: 'content/mid-text.md',
 };
+
+function renderFactsheet(data) {
+  document.querySelectorAll('[data-factsheet]').forEach((list) => {
+    list.replaceChildren();
+
+    Object.entries(data).forEach(([key, value]) => {
+      const row = document.createElement('div');
+      const term = document.createElement('dt');
+      const detail = document.createElement('dd');
+
+      term.textContent = key;
+      detail.textContent = String(value || '').trim() || '-';
+
+      row.append(term, detail);
+      list.appendChild(row);
+    });
+  });
+}
+
+fetch('content/factsheet.json', { cache: 'no-store' })
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error('Unable to load content/factsheet.json');
+    }
+    return response.json();
+  })
+  .then((data) => {
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      renderFactsheet(data);
+    }
+  })
+  .catch(() => {
+    // Leave the factsheet empty if the JSON cannot be loaded.
+  });
 
 function getYouTubeEmbedUrl(value) {
   const input = value.trim();
@@ -296,7 +271,7 @@ function getYouTubeEmbedUrl(value) {
   }
 }
 
-fetch('content/youtube-url.md')
+fetch('content/youtube-url.md', { cache: 'no-store' })
   .then((response) => {
     if (!response.ok) {
       throw new Error('Unable to load content/youtube-url.md');
@@ -353,6 +328,17 @@ function stripHeadingMarker(value) {
   return value.replace(/^#{1,6}\s+/, '');
 }
 
+function renderSingleHeadingMarkdown(value) {
+  const trimmed = value.trim();
+  const heading = trimmed.match(/^(#{1,6})\s+(.+)$/);
+  if (!heading) {
+    return `<p>${renderInlineMarkdown(trimmed)}</p>`;
+  }
+
+  const level = heading[1].length;
+  return `<h${level}>${renderInlineMarkdown(heading[2])}</h${level}>`;
+}
+
 function renderMarkdown(value) {
   const lines = value.replace(/\r\n/g, '\n').split('\n');
   const blocks = [];
@@ -386,7 +372,7 @@ function renderMarkdown(value) {
       return;
     }
 
-    const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+    const heading = trimmed.match(/^(#{1,6})\s+(.+)$/);
     if (heading) {
       flushParagraph();
       flushList();
@@ -423,6 +409,11 @@ function renderText(target, text) {
     return;
   }
 
+  if (target.dataset.textFormat === 'heading-markdown') {
+    target.innerHTML = renderSingleHeadingMarkdown(content);
+    return;
+  }
+
   if (target.dataset.textFormat === 'inline-markdown') {
     target.innerHTML = renderInlineMarkdown(stripHeadingMarker(content));
     return;
@@ -432,7 +423,7 @@ function renderText(target, text) {
 }
 
 Object.entries(textFiles).forEach(([key, path]) => {
-  fetch(path)
+  fetch(path, { cache: 'no-store' })
     .then((response) => {
       if (!response.ok) {
         throw new Error(`Unable to load ${path}`);
