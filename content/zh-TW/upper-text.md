@@ -1,1 +1,1 @@
-Into The Haunted Land is a 1–6 player online co-op horror extraction game. Explore cursed ruins, loot valuable and dangerous items, hide from monsters, extract and complete the Guild’s quota before your team is swallowed by the Haunted Land.
+《詭域深行》是一款1–6 人遊玩的線上合作恐怖探索遊戲。玩家需要探索遺跡、搜刮被詛咒的物品、躲藏或跑離怪物、並想辦法安全撤離；在避免被詭域吞噬的同時想辦法完成公會的配額。

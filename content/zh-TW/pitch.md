@@ -1,1 +1,1 @@
-Multiplayer Online co-op Horror Extraction Game
+多人恐怖探索遊戲

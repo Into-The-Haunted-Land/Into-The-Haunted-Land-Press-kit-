@@ -1,4 +1,4 @@
-﻿ 由 [Bionic Bay](https://store.steampowered.com/app/1928690/Bionic_Bay/) 開發者之一 [Kevin Lai](https://x.com/LaiLie0126) 所開發，這次玩家將組隊深入這個被詛咒的島嶼，尋找危險的詛咒物品。
+﻿ 由 [Bionic Bay: 換影循跡](https://store.steampowered.com/app/1928690/Bionic_Bay/) 的開發者之一 [Kevin Lai](https://x.com/LaiLie0126) 所開發，這次玩家將組隊深入這個被詛咒的島嶼，尋找危險的詛咒物品。
 
 ### 遊戲核心：探索！尋寶！躲藏！撤離！
 
