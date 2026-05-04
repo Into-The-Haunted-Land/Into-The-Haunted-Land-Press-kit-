@@ -19,9 +19,11 @@
       <span>Into The Haunted Land</span>
     </a>
     <nav aria-label="Press kit sections">
-      <a href="#factsheet">Factsheet</a>
-      <a href="#media">Media</a>
-      <a href="#assets">Assets</a>
+      <a href="#press-kit">Press Kit</a>
+      <a href="#trailer">Trailer</a>
+      <a href="#gameplay-clips">Gameplay Clips</a>
+      <a href="#screenshots">Screenshots</a>
+      <a href="#downloads">Downloads</a>
       <a href="#contact">Contact</a>
     </nav>
     <label class="language-switcher">
@@ -39,13 +41,13 @@
       <img class="hero-bg" src="assets/images/presskit-header.png" alt="Into The Haunted Land black and white haunted town artwork">
     </section>
 
-    <section class="section intro-grid">
+    <section class="section intro-grid" id="press-kit">
       <aside class="press-card">
         <img class="press-card-logo" src="assets/images/presskit-main.png" alt="Into The Haunted Land">
-        <p class="tagline" data-text-key="pitch" data-text-format="inline-markdown">Online co-op survival horror in a haunted forbidden land.</p>
+        <div class="tagline" data-text-key="pitch" data-text-format="markdown">Online co-op survival horror in a haunted forbidden land.</div>
         <div class="hero-actions">
           <a class="button primary" href="https://store.steampowered.com/app/1917470" target="_blank" rel="noreferrer">Steam Page</a>
-          <a class="button" href="#media">View Media</a>
+          <a class="button" href="#screenshots">View Media</a>
         </div>
       </aside>
 
@@ -73,7 +75,7 @@
       </aside>
     </section>
 
-    <section class="section video-section">
+    <section class="section video-section" id="trailer">
       <div class="section-heading">
         <p class="eyebrow">Video</p>
         <h2>Trailer</h2>
@@ -81,9 +83,14 @@
       <div class="video-frame">
         <iframe data-youtube-player title="Into The Haunted Land trailer" src="https://www.youtube.com/embed/Bg-VRaviktk" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
       </div>
+      <div class="section-heading video-clips-heading" id="gameplay-clips">
+        <p class="eyebrow">Video</p>
+        <h2>Gameplay Clips</h2>
+      </div>
+      <div class="video-gallery" data-video-folder="assets/video" data-github-owner="Into-The-Haunted-Land" data-github-repo="Into-The-Haunted-Land-Press-kit-"></div>
     </section>
 
-    <section class="section media" id="media">
+    <section class="section media" id="screenshots">
       <div class="section-heading">
         <p class="eyebrow">Media</p>
         <h2>Screenshots</h2>
@@ -104,11 +111,13 @@
       </div>
     </section>
 
-    <section class="section download-band">
+    <section class="section download-band" id="downloads">
       <div>
         <p class="eyebrow">Downloads</p>
-        <h2>Press-ready files</h2>
-        <p>Open any image above to download the original PNG.</p>
+        <div data-text-key="pressReadyTitle" data-text-format="heading-markdown"><h2>Press-ready files</h2></div>
+        <div data-text-key="pressReadyText" data-text-format="markdown">
+          <p>Open any image above to download the original PNG.</p>
+        </div>
       </div>
       <a class="button primary" href="assets/downloads/into-the-haunted-land-press-kit.zip">Download Press Kit ZIP</a>
     </section>
@@ -116,11 +125,13 @@
     <section class="section contact" id="contact">
       <div>
         <p class="eyebrow">Contact</p>
-        <h2>Press inquiries</h2>
-        <p>For review keys, interviews, events, or additional assets, contact the developer or use the Steam page as the current public source.</p>
+        <div data-text-key="contactTitle" data-text-format="heading-markdown"><h2>Press inquiries</h2></div>
+        <div data-text-key="contactText" data-text-format="markdown">
+          <p>For review keys, interviews, events, or additional assets, contact the developer or use the Steam page as the current public source.</p>
+        </div>
       </div>
       <div class="contact-links">
-        <a href="https://store.steampowered.com/app/1917470" target="_blank" rel="noreferrer">Steam</a>
+        <a href="https://x.com/LaiLie0126" target="_blank" rel="noreferrer">X</a>
         <a href="mailto:hauntedland.contact@gmail.com">hauntedland.contact@gmail.com</a>
       </div>
     </section>

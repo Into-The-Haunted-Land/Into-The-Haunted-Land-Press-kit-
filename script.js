@@ -136,6 +136,71 @@ function getImageFiles(files) {
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 }
 
+function getVideoFiles(files) {
+  return files
+    .filter((file) => file.type === 'file')
+    .filter((file) => /\.(mp4|webm|mov)$/i.test(file.name))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+}
+
+function renderVideoCards(container, files) {
+  const videoFiles = getVideoFiles(files);
+
+  if (videoFiles.length === 0) {
+    return;
+  }
+
+  container.replaceChildren();
+  videoFiles.forEach((file) => {
+    const src = file.download_url || file.path;
+    const title = titleFromFileName(file.name);
+    const card = document.createElement('article');
+    card.className = 'video-card';
+
+    const video = document.createElement('video');
+    video.src = src;
+    video.controls = true;
+    video.muted = true;
+    video.loop = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+
+    const label = document.createElement('h3');
+    label.textContent = title;
+
+    card.append(video, label);
+    container.appendChild(card);
+    observeAutoplayVideo(video);
+  });
+}
+
+const autoplayVideoObserver = 'IntersectionObserver' in window
+  ? new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const video = entry.target;
+      if (entry.isIntersecting) {
+        video.play().catch(() => {
+          // Some browsers still block autoplay until the user interacts.
+        });
+      } else {
+        video.pause();
+      }
+    });
+  }, { threshold: 0.45 })
+  : null;
+
+function observeAutoplayVideo(video) {
+  if (!autoplayVideoObserver) {
+    video.play().catch(() => {
+      // Keep controls available if autoplay is blocked.
+    });
+    return;
+  }
+
+  autoplayVideoObserver.observe(video);
+}
+
 function renderGalleryImages(container, files) {
   const imageFiles = getImageFiles(files);
 
@@ -190,6 +255,20 @@ document.querySelectorAll('[data-gallery-folder]').forEach((container) => {
     });
 });
 
+document.querySelectorAll('[data-video-folder]').forEach((container) => {
+  const folderPath = container.dataset.videoFolder;
+
+  fetchFolderFiles(container, folderPath)
+    .then((files) => {
+      if (Array.isArray(files)) {
+        renderVideoCards(container, files);
+      }
+    })
+    .catch(() => {
+      // No videos are shown if the directory API is unavailable.
+    });
+});
+
 document.querySelectorAll('.asset-scroll').forEach((scrollView) => {
   scrollView.addEventListener('wheel', (event) => {
     if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
@@ -206,6 +285,10 @@ const textFiles = {
   upperText: 'upper-text.md',
   midTitle: 'mid-title.md',
   midText: 'mid-text.md',
+  pressReadyTitle: 'press-ready-title.md',
+  pressReadyText: 'press-ready-text.md',
+  contactTitle: 'contact-title.md',
+  contactText: 'contact-text.md',
 };
 
 const defaultLanguage = 'zh-TW';
