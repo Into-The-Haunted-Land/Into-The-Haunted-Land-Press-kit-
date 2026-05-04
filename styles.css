@@ -131,6 +131,9 @@ nav a:hover { color: var(--ink); }
   font-size: 1.08rem;
   line-height: 1.2;
 }
+.tagline h3 {
+  color: var(--red);
+}
 .tagline ul {
   margin: 0 0 12px;
   padding-left: 1.15rem;
@@ -177,15 +180,11 @@ nav a:hover { color: var(--ink); }
   position: sticky;
   top: 88px;
   align-self: start;
-  z-index: 2;
-  margin-top: clamp(-300px, -12.5vw, -108px);
   transform: translateX(clamp(-42px, -2.4vw, -18px));
   border-top: 4px solid var(--red);
   background: var(--panel);
   padding: clamp(18px, 1.6vw, 26px);
   box-shadow: 0 20px 60px var(--shadow);
-  max-height: calc(100vh - 112px);
-  overflow-y: auto;
 }
 .press-card-logo {
   width: 100%;
@@ -250,6 +249,9 @@ p { color: var(--muted); font-size: 1rem; }
 .description h3 {
   margin: 28px 0 12px;
   font-size: clamp(1.45rem, 2.25vw, 2rem);
+}
+.text-block-upper h3 {
+  color: var(--red);
 }
 .description h4 {
   margin: 24px 0 10px;
@@ -407,7 +409,8 @@ dd { margin: 4px 0 0; font-weight: 700; }
   scroll-snap-type: x proximity;
   scrollbar-color: var(--red) rgba(255, 255, 255, 0.08);
   user-select: none;
-  touch-action: pan-y;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
 }
 .asset-scroll::-webkit-scrollbar {
