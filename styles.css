@@ -83,7 +83,7 @@ nav a:hover { color: var(--ink); }
 
 .hero {
   position: relative;
-  min-height: clamp(180px, 22.92vw, 440px);
+  height: clamp(135px, 17.2vw, 330px);
   overflow: hidden;
   border-bottom: 1px solid var(--line);
 }
@@ -169,6 +169,7 @@ nav a:hover { color: var(--ink); }
   grid-template-columns: minmax(300px, 1.2fr) minmax(50%, 2.6fr) minmax(240px, 0.82fr);
   gap: clamp(28px, 3.4vw, 56px);
   align-items: start;
+  padding-top: clamp(34px, 4.2vw, 58px);
 }
 .split {
   display: grid;
@@ -464,7 +465,7 @@ footer {
 @media (max-width: 840px) {
   .site-header { position: static; align-items: flex-start; flex-direction: column; }
   nav { justify-content: flex-start; }
-  .hero { min-height: auto; }
+  .hero { height: clamp(112px, 26vw, 180px); }
   .intro-grid, .split { grid-template-columns: 1fr; }
   .press-card {
     position: static;
@@ -487,6 +488,7 @@ footer {
   .gallery, .video-gallery { grid-template-columns: 1fr; }
   .asset-scroll .asset-card { flex-basis: 86vw; }
   .section { padding: 56px 0; }
+  .intro-grid { padding-top: 32px; }
   .video-section,
   .media,
   .assets {
