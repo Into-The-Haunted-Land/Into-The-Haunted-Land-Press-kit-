@@ -251,9 +251,6 @@ p { color: var(--muted); font-size: 1rem; }
   margin: 28px 0 12px;
   font-size: clamp(1.45rem, 2.25vw, 2rem);
 }
-.text-block-upper h3 {
-  color: var(--red);
-}
 .description h4 {
   margin: 24px 0 10px;
   font-size: clamp(1.22rem, 1.65vw, 1.55rem);
@@ -269,6 +266,11 @@ p { color: var(--muted); font-size: 1rem; }
   color: var(--muted);
   font-size: clamp(0.95rem, 1.05vw, 1rem);
   text-transform: uppercase;
+}
+.description .text-block-upper [data-text-key="upperText"] > :first-child {
+  border-left: 0;
+  padding-left: 0;
+  color: var(--red);
 }
 .description ul {
   margin: 18px 0 0;
