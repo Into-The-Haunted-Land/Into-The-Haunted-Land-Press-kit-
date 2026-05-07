@@ -115,8 +115,35 @@ function fetchFolderFiles(container, folderPath) {
     });
 }
 
-function renderAssetCards(container, files) {
+function getLanguageFolder(language = currentLanguage) {
+  return language;
+}
+
+function getLocalizedPath(path, language = currentLanguage) {
+  if (language === defaultLanguage) {
+    return path;
+  }
+
+  const folder = getLanguageFolder(language);
+  const lastSlash = path.lastIndexOf('/');
+  if (!folder || lastSlash < 0) {
+    return path;
+  }
+
+  return `${path.slice(0, lastSlash)}/${folder}/${path.slice(lastSlash + 1)}`;
+}
+
+function fileSource(file) {
+  return file.download_url || file.path;
+}
+
+function localizedFileMap(files) {
+  return new Map(getImageFiles(files).map((file) => [file.name, file]));
+}
+
+function renderAssetCards(container, files, localizedFiles = []) {
   const imageFiles = getImageFiles(files);
+  const localizedImages = localizedFileMap(localizedFiles);
 
   if (imageFiles.length === 0) {
     return;
@@ -124,7 +151,8 @@ function renderAssetCards(container, files) {
 
   container.replaceChildren();
   imageFiles.forEach((file) => {
-    const src = file.download_url || file.path;
+    const localizedFile = localizedImages.get(file.name);
+    const src = fileSource(localizedFile || file);
     container.appendChild(createAssetCard(src, titleFromFileName(file.name)));
   });
 }
@@ -227,19 +255,33 @@ function renderGalleryImages(container, files) {
   });
 }
 
-document.querySelectorAll('[data-asset-folder]').forEach((container) => {
-  const folderPath = container.dataset.assetFolder;
+function loadAssetFolders(language = currentLanguage) {
+  document.querySelectorAll('[data-asset-folder]').forEach((container) => {
+    const folderPath = container.dataset.assetFolder;
+    const localizedFolderPath = `${folderPath}/${getLanguageFolder(language)}`;
 
-  fetchFolderFiles(container, folderPath)
-    .then((files) => {
-      if (Array.isArray(files)) {
-        renderAssetCards(container, files);
-      }
-    })
-    .catch(() => {
-      // Keep the HTML fallback cards if GitHub's directory API is unavailable.
-    });
-});
+    fetchFolderFiles(container, folderPath)
+      .then((files) => {
+        if (Array.isArray(files)) {
+          if (language === defaultLanguage) {
+            renderAssetCards(container, files);
+            return;
+          }
+
+          fetchFolderFiles(container, localizedFolderPath)
+            .then((localizedFiles) => {
+              renderAssetCards(container, files, Array.isArray(localizedFiles) ? localizedFiles : []);
+            })
+            .catch(() => {
+              renderAssetCards(container, files);
+            });
+        }
+      })
+      .catch(() => {
+        // Keep the HTML fallback cards if GitHub's directory API is unavailable.
+      });
+  });
+}
 
 document.querySelectorAll('[data-gallery-folder]').forEach((container) => {
   const folderPath = container.dataset.galleryFolder;
@@ -345,6 +387,19 @@ function updateLanguageUrl(language) {
   const url = new URL(window.location.href);
   url.searchParams.set('lang', language);
   window.history.replaceState({}, '', url);
+}
+
+function updateLanguageImages(language = currentLanguage) {
+  document.querySelectorAll('[data-localized-src]').forEach((image) => {
+    const defaultSrc = image.dataset.localizedSrc;
+    const localizedSrc = getLocalizedPath(defaultSrc, language);
+
+    image.onerror = () => {
+      image.onerror = null;
+      image.src = defaultSrc;
+    };
+    image.src = localizedSrc;
+  });
 }
 
 function renderFactsheet(data) {
@@ -579,6 +634,8 @@ function loadLanguage(language, options = {}) {
   }
   document.documentElement.lang = currentLanguage;
   updateLanguageControl();
+  updateLanguageImages(currentLanguage);
+  loadAssetFolders(currentLanguage);
   loadMarkdownContent(currentLanguage);
   loadFactsheetContent(currentLanguage);
   loadYouTubeContent(currentLanguage);
