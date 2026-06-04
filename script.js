@@ -120,10 +120,6 @@ function getLanguageFolder(language = currentLanguage) {
 }
 
 function getLocalizedPath(path, language = currentLanguage) {
-  if (language === defaultLanguage) {
-    return path;
-  }
-
   const folder = getLanguageFolder(language);
   const lastSlash = path.lastIndexOf('/');
   if (!folder || lastSlash < 0) {
@@ -263,14 +259,17 @@ function loadAssetFolders(language = currentLanguage) {
     fetchFolderFiles(container, folderPath)
       .then((files) => {
         if (Array.isArray(files)) {
-          if (language === defaultLanguage) {
-            renderAssetCards(container, files);
-            return;
-          }
-
           fetchFolderFiles(container, localizedFolderPath)
             .then((localizedFiles) => {
-              renderAssetCards(container, files, Array.isArray(localizedFiles) ? localizedFiles : []);
+              const hasBaseImages = getImageFiles(files).length > 0;
+              const localizedList = Array.isArray(localizedFiles) ? localizedFiles : [];
+
+              if (hasBaseImages) {
+                renderAssetCards(container, files, localizedList);
+                return;
+              }
+
+              renderAssetCards(container, localizedList);
             })
             .catch(() => {
               renderAssetCards(container, files);
@@ -335,6 +334,11 @@ const textFiles = {
 
 const defaultLanguage = 'zh-TW';
 const supportedLanguages = ['zh-TW', 'en', 'ja'];
+const pressKitDownloads = {
+  'zh-TW': 'assets/downloads/into-the-haunted-land-press-kit-zh-TW.zip',
+  en: 'assets/downloads/into-the-haunted-land-press-kit-en.zip',
+  ja: 'assets/downloads/into-the-haunted-land-press-kit-ja.zip',
+};
 const initialUrlLanguage = getUrlLanguage();
 let currentLanguage = supportedLanguages.includes(initialUrlLanguage)
   ? initialUrlLanguage
@@ -399,6 +403,13 @@ function updateLanguageImages(language = currentLanguage) {
       image.src = defaultSrc;
     };
     image.src = localizedSrc;
+  });
+}
+
+function updateDownloadLinks(language = currentLanguage) {
+  const href = pressKitDownloads[language] || pressKitDownloads[defaultLanguage];
+  document.querySelectorAll('[data-download-link]').forEach((link) => {
+    link.href = href;
   });
 }
 
@@ -635,6 +646,7 @@ function loadLanguage(language, options = {}) {
   document.documentElement.lang = currentLanguage;
   updateLanguageControl();
   updateLanguageImages(currentLanguage);
+  updateDownloadLinks(currentLanguage);
   loadAssetFolders(currentLanguage);
   loadMarkdownContent(currentLanguage);
   loadFactsheetContent(currentLanguage);
